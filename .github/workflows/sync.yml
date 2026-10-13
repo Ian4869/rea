@@ -1,0 +1,39 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '0 */12 * * *' # 每6小时执行一次，可根据需要调整
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 获取完整历史以便合并
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add Upstream Remote
+        run: |
+          git remote add upstream https://github.com/morluto/rea.git
+          # 将 ORIGINAL_OWNER/ORIGINAL_REPO 替换为源仓库地址
+
+      - name: Fetch Upstream
+        run: git fetch upstream
+
+      - name: Merge Upstream Changes
+        run: |
+          git checkout main # 替换为你要同步的目标分支，如 master
+          git merge upstream/main --no-edit # 替换为源仓库的分支名
+          # 如果有冲突，此步骤会失败，需手动处理或增加冲突解决策略
+
+      - name: Push Changes
+        run: git push origin main # 替换为目标分支
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
