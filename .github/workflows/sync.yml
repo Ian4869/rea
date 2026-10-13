@@ -1,5 +1,6 @@
 name: Sync Fork
-
+permissions:
+  contents: write
 on:
   schedule:
     - cron: '0 */12 * * *' # 每6小时执行一次，可根据需要调整
